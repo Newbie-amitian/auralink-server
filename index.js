@@ -1,4 +1,5 @@
 const http = require('http');
+const https = require('https');
 const { Server } = require('socket.io');
 const { createClient } = require('@supabase/supabase-js');
 
@@ -93,7 +94,7 @@ async function logSessionEnd(hostDevice, viewerDevice) {
 const RENDER_URL = process.env.RENDER_URL || '';
 if (RENDER_URL) {
   setInterval(() => {
-    http.get(`${RENDER_URL}/ping`, () => {}).on('error', () => {});
+    https.get(`${RENDER_URL}/ping`, () => {}).on('error', () => {});
     console.log('[Keep-alive] ping sent');
   }, 10 * 60 * 1000); // every 10 minutes
 }
