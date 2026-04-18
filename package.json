@@ -1,0 +1,17 @@
+{
+  "name": "auralink-server",
+  "version": "1.0.0",
+  "description": "AuraLink Signaling Server",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.103.3",
+    "socket.io": "^4.8.3"
+  }
+}
