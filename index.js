@@ -183,6 +183,13 @@ io.on('connection', (socket) => {
     io.to(targetDeviceCode).emit('reaction', { emoji, senderCode });
   });
 
+ // ── THEME SYNC ─────────────────────────────────────────────  ← ADD HERE
+  socket.on('theme-change', ({ targetDeviceCode, themeId }) => {
+    console.log(`[Theme] ${themeId} → ${targetDeviceCode}`);
+    io.to(targetDeviceCode).emit('theme-change', { themeId });
+  });
+
+
   // ── FILE METADATA ──────────────────────────────────────────
   socket.on('file-meta', ({ targetDeviceCode, fileName, fileSize, fileType, transferId }) => {
     console.log(`[File] ${fileName} (${fileSize}b) → ${targetDeviceCode}`);
