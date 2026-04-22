@@ -211,6 +211,53 @@ io.on('connection', (socket) => {
     });
   });
 
+  // ── REMOTE CONTROL ──────────────────────────────────────────────────────
+  socket.on('mouse-event', ({ targetDeviceCode, event }) => {
+    io.to(targetDeviceCode).emit('mouse-event', { event });
+  });
+
+  socket.on('keyboard-event', ({ targetDeviceCode, event }) => {
+    io.to(targetDeviceCode).emit('keyboard-event', { event });
+  });
+
+  // ── MEET MODE ─────────────────────────────────────────────
+  socket.on('meet-request', ({ targetDeviceCode }) => {
+    console.log(`[Meet] Request: ${socket.deviceCode} → ${targetDeviceCode}`);
+    io.to(targetDeviceCode).emit('meet-request', {
+      fromDeviceCode: socket.deviceCode
+    });
+  });
+
+  socket.on('meet-response', ({ targetDeviceCode, accepted, message }) => {
+    console.log(`[Meet] Response: ${accepted ? 'accepted' : 'declined'} → ${targetDeviceCode}`);
+    io.to(targetDeviceCode).emit('meet-response', {
+      accepted,
+      message: message || '',
+      fromDeviceCode: socket.deviceCode
+    });
+  });
+
+  socket.on('meet-presenter', ({ targetDeviceCode }) => {
+    console.log(`[Meet] Presenter: ${socket.deviceCode} → ${targetDeviceCode}`);
+    io.to(targetDeviceCode).emit('meet-presenter', {
+      fromDeviceCode: socket.deviceCode
+    });
+  });
+
+  socket.on('meet-stop-presenting', ({ targetDeviceCode }) => {
+    console.log(`[Meet] Stop presenting: ${socket.deviceCode} → ${targetDeviceCode}`);
+    io.to(targetDeviceCode).emit('meet-stop-presenting', {
+      fromDeviceCode: socket.deviceCode
+    });
+  });
+
+  socket.on('meet-end', ({ targetDeviceCode }) => {
+    console.log(`[Meet] End: ${socket.deviceCode} → ${targetDeviceCode}`);
+    io.to(targetDeviceCode).emit('meet-end', {
+      fromDeviceCode: socket.deviceCode
+    });
+  });
+
 
   // ── FILE METADATA ──────────────────────────────────────────
   socket.on('file-meta', ({ targetDeviceCode, fileName, fileSize, fileType, transferId }) => {
