@@ -94,7 +94,7 @@ async function logSessionEnd(hostDevice, viewerDevice) {
 const RENDER_URL = process.env.RENDER_URL || '';
 if (RENDER_URL) {
   setInterval(() => {
-    https.get(`${RENDER_URL}/ping`, () => {}).on('error', () => {});
+    https.get(`${RENDER_URL}/ping`, () => { }).on('error', () => { });
     console.log('[Keep-alive] ping sent');
   }, 10 * 60 * 1000); // every 10 minutes
 }
@@ -134,7 +134,7 @@ io.on('connection', (socket) => {
   // Host → Viewer: accepted or rejected
   socket.on('session-response', async ({ viewerDeviceCode, accepted }) => {
     console.log(`[Session] ${socket.deviceCode} ${accepted ? 'accepted' : 'rejected'} ${viewerDeviceCode}`);
-    
+
     if (accepted) {
       // log session start in Supabase
       await logSessionStart(socket.deviceCode, viewerDeviceCode);
@@ -183,10 +183,32 @@ io.on('connection', (socket) => {
     io.to(targetDeviceCode).emit('reaction', { emoji, senderCode });
   });
 
- // ── THEME SYNC ─────────────────────────────────────────────  ← ADD HERE
+  // ── THEME SYNC ─────────────────────────────────────────────
   socket.on('theme-change', ({ targetDeviceCode, themeId }) => {
     console.log(`[Theme] ${themeId} → ${targetDeviceCode}`);
     io.to(targetDeviceCode).emit('theme-change', { themeId });
+  });
+
+  // ── DISPLAY NAME SYNC ──────────────────────────────────────
+  socket.on('display-name', ({ targetDeviceCode, displayName }) => {
+    console.log(`[Name] ${socket.deviceCode} → ${targetDeviceCode}: "${displayName}"`);
+    io.to(targetDeviceCode).emit('display-name', { displayName });
+  });
+
+  // ── SCREEN SHARE REQUEST ───────────────────────────────────
+  socket.on('screen-share-request', ({ targetDeviceCode }) => {
+    console.log(`[ScreenShare] Request: ${socket.deviceCode} → ${targetDeviceCode}`);
+    io.to(targetDeviceCode).emit('screen-share-request', {
+      fromDeviceCode: socket.deviceCode
+    });
+  });
+
+  socket.on('screen-share-response', ({ targetDeviceCode, accepted }) => {
+    console.log(`[ScreenShare] Response: ${accepted ? 'accepted' : 'declined'} → ${targetDeviceCode}`);
+    io.to(targetDeviceCode).emit('screen-share-response', {
+      accepted,
+      fromDeviceCode: socket.deviceCode
+    });
   });
 
 
@@ -205,7 +227,7 @@ io.on('connection', (socket) => {
   // ── SESSION END ────────────────────────────────────────────
   socket.on('end-session', async ({ targetDeviceCode }) => {
     console.log(`[End] ${socket.deviceCode} ended session with ${targetDeviceCode}`);
-    
+
     // log session end in Supabase
     await logSessionEnd(socket.deviceCode, targetDeviceCode);
     await setSessionId(socket.deviceCode, null);
